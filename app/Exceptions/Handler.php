@@ -3,6 +3,8 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -36,6 +38,23 @@ class Handler extends ExceptionHandler
     {
         $this->reportable(function (Throwable $e) {
             //
+        });
+
+        $this->renderable(function (ValidationException $e, Request $request) {
+            if ($request->wantsJson()) {
+                $err = [];
+                foreach ($e->errors() as $key => $value) {
+                    $err[$key] = $value[0] ?? null;
+                }
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Data is invalid',
+                    'errors' => $err,
+                    'data' => null
+                ], 422);
+            }
+
+            throw $e;
         });
     }
 }

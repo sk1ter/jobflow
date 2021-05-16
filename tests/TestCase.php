@@ -9,12 +9,18 @@ abstract class TestCase extends BaseTestCase
 {
     use CreatesApplication, WithFaker;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->artisan('migrate:fresh --seed');
+    }
+
     /**
      * Reset the migrations
      */
     protected function tearDown(): void
     {
-        $this->artisan('migrate:reset');
+        $this->artisan('migrate:fresh --seed');
         parent::tearDown();
     }
 }
